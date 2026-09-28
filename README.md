@@ -1,6 +1,6 @@
 # claude-code-markdown-preview
 
-A Claude Code plugin that opens a Markdown file, or a whole folder of them with a file tree, as a rendered page in your browser.
+A Claude Code plugin that opens a Markdown file as a rendered page in your browser. Point it at a folder instead and you get every Markdown file in it on one page, with a searchable file tree to move between them (up to 500 files per folder).
 
 ```
 /md:preview docs/plan.md
