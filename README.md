@@ -1,9 +1,10 @@
 # claude-code-markdown-preview
 
-A Claude Code plugin that opens a Markdown file as a rendered page in your browser.
+A Claude Code plugin that opens a Markdown file, or a whole folder of them with a file tree, as a rendered page in your browser.
 
 ```
 /md:preview docs/plan.md
+/md:preview docs/
 ```
 
 ## The problem
@@ -19,11 +20,20 @@ This plugin gives Claude Code the same "open preview" action. You ask for it wit
 - Renders GitHub-flavored Markdown: tables, task lists, fenced code, autolinks.
 - Uses GitHub's Markdown style, with light and dark mode that follow your system setting.
 - Resolves relative images and links from the file's own folder.
-- Writes the page to `$TMPDIR/md-preview/` and opens it with `open` (macOS) or `xdg-open` (Linux). Your Markdown file is never changed.
+- Opens a folder as one page with a file tree on the side:
+  - every `.md` and `.markdown` file in the folder and its subfolders, with `.git`, `node_modules`, `vendor` and `tmp` skipped
+  - a filter box to find a file by name
+  - links between Markdown files (`[plan](../plan.md)`) open the other file in the same page
+  - the open file is in the URL, so the browser back button and a page reload keep your place
+  - it starts on the folder's `README.md` when there is one
+  - at most 500 files per page; above that it shows the first 500 and says so
+- Writes the page to `$TMPDIR/md-preview/` and opens it with `open` (macOS) or `xdg-open` (Linux). Your Markdown files are never changed.
+
+The page is a snapshot. After you edit a file, run the command again to see the change.
 
 ## How it works
 
-`skills/preview/scripts/render.sh` builds one HTML file. The Markdown text is embedded in the page as base64, and the browser renders it with [marked](https://github.com/markedjs/marked) and [github-markdown-css](https://github.com/sindresorhus/github-markdown-css). Both are loaded from the jsDelivr CDN, pinned to one version and checked with Subresource Integrity hashes.
+`skills/preview/scripts/render.sh` builds one HTML file. The Markdown text of each file is embedded in the page as base64, and the browser renders it with [marked](https://github.com/markedjs/marked) and [github-markdown-css](https://github.com/sindresorhus/github-markdown-css). Both are loaded from the jsDelivr CDN, pinned to one version and checked with Subresource Integrity hashes.
 
 So:
 
@@ -94,9 +104,11 @@ claude --plugin-dir /path/to/claude-code-markdown-preview
 ```
 /md:preview README.md
 /md:preview docs/adr/0001-some-decision.md
+/md:preview docs/
+/md:preview .
 ```
 
-You can also ask in plain words, for example "preview the plan you just wrote". Claude runs the same script. With no argument, it uses the Markdown file from the conversation, or asks which file you mean.
+You can also ask in plain words, for example "preview the plan you just wrote" or "open the docs folder in the browser". Claude runs the same script. With no argument, it uses the Markdown file or folder from the conversation, or asks which one you mean.
 
 The first run asks for permission to run the script unless your settings already allow it. The skill pre-approves only its own script for the turn it runs in.
 
