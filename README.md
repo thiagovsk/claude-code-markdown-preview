@@ -31,9 +31,31 @@ So:
 - The page needs internet access to load those two files. Your Markdown content stays on your machine; it is not uploaded anywhere.
 - Raw HTML inside the Markdown is rendered as HTML, like on GitHub. Only preview files you trust.
 
-## Install
+## Requirements
 
-Requires Claude Code v2.1.157 or later.
+There is nothing to install besides the plugin itself.
+
+| What | Used for | Where it comes from |
+|---|---|---|
+| Claude Code v2.1.157 or later | loading the plugin from `~/.claude/skills/` | you already have it |
+| `bash`, `base64`, `sed` | building the HTML page | preinstalled on macOS and Linux |
+| `shasum`, `sha1sum` or `cksum` (any one) | naming the output file | preinstalled on macOS and Linux |
+| `open` (macOS) or `xdg-open` (Linux) | opening the page in your default browser | preinstalled on macOS; on Linux part of `xdg-utils` |
+| [marked](https://github.com/markedjs/marked) 18.0.14 | turning Markdown into HTML | loaded by the browser from jsDelivr, not installed |
+| [github-markdown-css](https://github.com/sindresorhus/github-markdown-css) 5.9.0 | GitHub's Markdown style | loaded by the browser from jsDelivr, not installed |
+
+To check your machine, run:
+
+```bash
+claude --version
+command -v bash base64 sed
+command -v shasum || command -v sha1sum || command -v cksum
+command -v open || command -v xdg-open
+```
+
+Every command should print a version or a path. If `xdg-open` is missing on Linux, install `xdg-utils` with your package manager (for example `sudo apt install xdg-utils`).
+
+## Install
 
 ### Load it in every session
 
