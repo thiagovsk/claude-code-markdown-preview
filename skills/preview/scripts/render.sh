@@ -22,7 +22,14 @@ src_path="$src_dir/$src_name"
 
 out_dir="${TMPDIR:-/tmp}/md-preview"
 mkdir -p "$out_dir"
-out_hash="$(printf '%s' "$src_path" | shasum | cut -c1-12)"
+if command -v shasum >/dev/null 2>&1; then
+  hash_cmd="shasum"
+elif command -v sha1sum >/dev/null 2>&1; then
+  hash_cmd="sha1sum"
+else
+  hash_cmd="cksum"
+fi
+out_hash="$(printf '%s' "$src_path" | $hash_cmd | tr -cd '[:alnum:]' | cut -c1-12)"
 out_file="$out_dir/${src_name%.*}-$out_hash.html"
 
 content_b64="$(base64 < "$src_path" | tr -d '\n')"
