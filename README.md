@@ -2,6 +2,9 @@
 
 A Claude Code plugin that opens a Markdown file as a rendered page in your browser. Point it at a folder instead and you get every Markdown file in it on one page, with a searchable file tree to move between them (up to 500 files per folder).
 
+<img width="1651" height="655" alt="Screenshot 2026-09-28 at 10 42 18" src="https://github.com/user-attachments/assets/772a7e79-0f2b-4162-a84f-2b85dd175eb7" />
+
+
 ```
 /md:preview docs/plan.md
 /md:preview docs/
