@@ -43,7 +43,23 @@ Claude Code loads any folder in `~/.claude/skills/` that has a `.claude-plugin/p
 git clone https://github.com/thiagovsk/claude-code-markdown-preview ~/.claude/skills/md
 ```
 
-Then run `/reload-plugins` in an open session, or start a new one.
+If you already keep a clone somewhere else, link it instead:
+
+```bash
+ln -s /path/to/claude-code-markdown-preview ~/.claude/skills/md
+```
+
+New sessions load the plugin on their own.
+
+### Sessions that are already open
+
+A session that was open before you installed the plugin does not see it yet. Run this in that session:
+
+```
+/reload-plugins
+```
+
+It reloads plugins without restarting the session. After that `/md:preview` is in the `/` menu, and Claude in that session knows about the skill, so asking "open this Markdown file in the browser" works too. You don't need to explain the plugin to Claude.
 
 ### Try it for one session
 
