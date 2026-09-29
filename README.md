@@ -22,7 +22,7 @@ This plugin gives Claude Code the same "open preview" action. You ask for it wit
 
 ## What it does
 
-- Renders GitHub-flavored Markdown: tables, task lists, fenced code, autolinks, strikethrough, footnotes, alerts and heading anchors.
+- Renders GitHub-flavored Markdown: tables, task lists, fenced code, autolinks.
 - Uses GitHub's Markdown style, with light and dark mode that follow your system setting.
 - Resolves relative images and links from the file's own folder.
 - Opens a folder as one page with a file tree on the side:
@@ -38,40 +38,37 @@ The page is a snapshot. After you edit a file, run the command again to see the 
 
 ## How it works
 
-`skills/preview/scripts/render.sh` runs a small Rust program, `md-preview`, and builds it on the first run. The program walks the folder, renders each Markdown file to HTML with [comrak](https://github.com/kivikakk/comrak) (the same GFM extensions GitHub uses) and writes one self-contained HTML page. The page carries the rendered HTML of every file, [github-markdown-css](https://github.com/sindresorhus/github-markdown-css) and a small script for the file tree and navigation. Nothing is loaded from the network.
+`skills/preview/scripts/render.sh` builds one HTML file. The Markdown text of each file is embedded in the page as base64, and the browser renders it with [marked](https://github.com/markedjs/marked) and [github-markdown-css](https://github.com/sindresorhus/github-markdown-css). Both are loaded from the jsDelivr CDN, pinned to one version and checked with Subresource Integrity hashes.
 
 So:
 
-- The page works offline. Your Markdown content stays on your machine; it is not uploaded anywhere.
-- The first run compiles the program, which takes about a minute. After that it starts instantly and rebuilds itself only when the source changes.
+- Nothing to install: no Pandoc, no Node, no Python.
+- The page needs internet access to load those two files. Your Markdown content stays on your machine; it is not uploaded anywhere.
 - Raw HTML inside the Markdown is rendered as HTML, like on GitHub. Only preview files you trust.
 
 ## Requirements
 
-Besides the plugin itself you need a Rust toolchain, used once to build the program.
+There is nothing to install besides the plugin itself.
 
 | What | Used for | Where it comes from |
 |---|---|---|
 | Claude Code v2.1.157 or later | loading the plugin from `~/.claude/skills/` | you already have it |
-| `cargo` (Rust 1.85 or later) | building `md-preview` on the first run | [rustup.rs](https://rustup.rs) |
-| `bash` | the launcher script | preinstalled on macOS and Linux |
+| `bash`, `base64`, `sed` | building the HTML page | preinstalled on macOS and Linux |
+| `shasum`, `sha1sum` or `cksum` (any one) | naming the output file | preinstalled on macOS and Linux |
 | `open` (macOS) or `xdg-open` (Linux) | opening the page in your default browser | preinstalled on macOS; on Linux part of `xdg-utils` |
+| [marked](https://github.com/markedjs/marked) 18.0.14 | turning Markdown into HTML | loaded by the browser from jsDelivr, not installed |
+| [github-markdown-css](https://github.com/sindresorhus/github-markdown-css) 5.9.0 | GitHub's Markdown style | loaded by the browser from jsDelivr, not installed |
 
 To check your machine, run:
 
 ```bash
 claude --version
-cargo --version
+command -v bash base64 sed
+command -v shasum || command -v sha1sum || command -v cksum
 command -v open || command -v xdg-open
 ```
 
-Every command should print a version or a path. If `cargo` is missing, install Rust with `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`. If `xdg-open` is missing on Linux, install `xdg-utils` with your package manager (for example `sudo apt install xdg-utils`).
-
-You can also build ahead of time, for example right after cloning:
-
-```bash
-cargo build --release --manifest-path ~/.claude/skills/md/Cargo.toml
-```
+Every command should print a version or a path. If `xdg-open` is missing on Linux, install `xdg-utils` with your package manager (for example `sudo apt install xdg-utils`).
 
 ## Install
 
@@ -125,24 +122,13 @@ The first run asks for permission to run the script unless your settings already
 ```
 .claude-plugin/plugin.json        plugin manifest (name: md)
 skills/preview/SKILL.md           the /md:preview skill
-skills/preview/scripts/render.sh  builds md-preview when needed and runs it
-Cargo.toml, src/main.rs           md-preview: walks the folder, renders Markdown, writes and opens the page
-assets/                           page template, stylesheet, client script and vendored github-markdown-css
-tests/cli.rs                      end-to-end tests of the binary
-```
-
-To work on the program:
-
-```bash
-cargo test
-cargo build --release
+skills/preview/scripts/render.sh  builds the HTML page and opens it
 ```
 
 ## Troubleshooting
 
 - `/md:preview` is not listed: run `claude plugin validate <plugin folder>`, then `/reload-plugins`, then check the Errors tab in `/plugin`.
-- `render.sh` says cargo was not found: install Rust from [rustup.rs](https://rustup.rs) and run the command again. The launcher also looks in `~/.cargo/bin`.
-- The build fails: run `cargo build --release --manifest-path ~/.claude/skills/md/Cargo.toml` to see the full compiler output.
+- The page is blank: the browser could not load the CDN files. Check your internet connection.
 - Images are missing: image paths are resolved from the Markdown file's folder. Absolute URLs work too.
 
 ## License
