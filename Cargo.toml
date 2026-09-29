@@ -1,0 +1,15 @@
+[package]
+name = "md-preview"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Render one Markdown file or a folder of them to a single HTML page and open it in the browser"
+license = "MIT"
+publish = false
+
+[dependencies]
+comrak = { version = "0.55", default-features = false }
+serde_json = "1"
+
+[profile.release]
+strip = true
