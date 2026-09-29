@@ -1,7 +1,7 @@
 {
   "name": "md",
   "description": "Open a Markdown file as a rendered page in your browser, straight from Claude Code",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "author": {
     "name": "Thiago Ribeiro"
   }
